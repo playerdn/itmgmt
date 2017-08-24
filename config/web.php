@@ -2,6 +2,7 @@
 
 $params = require(__DIR__ . '/params.php');
 $db = require(__DIR__ . '/db_ungg.php');
+$ad = require(__DIR__ . '/ldap_ungg.php');
 
 $config = [
     'id' => 'itmgmt',
@@ -16,7 +17,7 @@ $config = [
             'class' => 'yii\caching\FileCache',
         ],
         'user' => [
-            'identityClass' => 'app\models\User',
+            'identityClass' => 'Edvlerblog\Adldap2\model\UserDbLdap',
             'enableAutoLogin' => true,
         ],
         'errorHandler' => [
@@ -42,6 +43,11 @@ $config = [
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,
+        ],
+        'ad' => $ad,
+        'authManager' => [
+            'class' => 'yii\rbac\DbManager',
+            'defaultRoles' => ['guest'],
         ],
     ],
     'params' => $params,

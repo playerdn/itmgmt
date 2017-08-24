@@ -51,7 +51,12 @@ AppAsset::register($this);
                 )
                 . Html::endForm()
                 . '</li>'
-            )
+            ),
+            Yii::$app->user->can('mailAdmin') ? (
+                ['label' => 'Manage mail', 'url' => ['/email/index']]
+            ): ( 
+                ['label' => '__', 'url' => ['/#']]
+            ),
         ],
     ]);
     NavBar::end();

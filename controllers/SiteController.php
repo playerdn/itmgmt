@@ -9,6 +9,7 @@ use yii\web\Response;
 use yii\filters\VerbFilter;
 use app\models\LoginForm;
 use app\models\ContactForm;
+use app\rbac\RbacHelper;
 
 class SiteController extends Controller
 {
@@ -122,5 +123,23 @@ class SiteController extends Controller
     public function actionAbout()
     {
         return $this->render('about');
+    }
+    
+    public function actionDo() {
+        //$o = \Edvlerblog\Adldap2\model\UserDbLdap::findByUsername('lib2');
+        $o = \Yii::$app->ad->search()->findBy('sAMAccountname', 'lib2');
+        
+        $ret='';
+        $groups = array();
+        foreach($o->getGroups() as $g) {
+            $ret = $ret . '<p>' . $g->getCommonName() . '<p>';
+            array_push($groups, $g->getCommonName());
+        }
+        return print_r(RbacHelper::GetRolesForGroups($groups),true);
+        
+        //return $ret;
+        
+        return print_r($o->getGroups(), true);
+        //return var_dump();
     }
 }
