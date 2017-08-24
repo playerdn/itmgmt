@@ -28,18 +28,28 @@ AppAsset::register($this);
 <div class="wrap">
     <?php
     NavBar::begin([
-        'brandLabel' => 'My Company',
+        'brandLabel' => 'Home',
         'brandUrl' => Yii::$app->homeUrl,
         'options' => [
             'class' => 'navbar-inverse navbar-fixed-top',
         ],
     ]);
+    
     echo Nav::widget([
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
-            ['label' => 'Home', 'url' => ['/site/index']],
-            ['label' => 'About', 'url' => ['/site/about']],
-            ['label' => 'Contact', 'url' => ['/site/contact']],
+            Yii::$app->user->can('observeMailboxes') ? (
+                ['label' => 'E-mail', 'url' => ['/email/']]
+            ): (''),
+            Yii::$app->user->can('observeInetPermissions') ? (
+                ['label' => 'Internet', 'url' => ['/inet/']]
+            ): (''),
+            Yii::$app->user->can('observeVpnPermissions') ? (
+                ['label' => 'OpenVPN', 'url' => ['/vpn/']]
+            ): (''),
+            Yii::$app->user->can('viewPortConfig') ? (
+                ['label' => 'VCS (room 312)', 'url' => ['/vcs/']]
+            ): (''),
             Yii::$app->user->isGuest ? (
                 ['label' => 'Login', 'url' => ['/site/login']]
             ) : (
@@ -51,11 +61,6 @@ AppAsset::register($this);
                 )
                 . Html::endForm()
                 . '</li>'
-            ),
-            Yii::$app->user->can('mailAdmin') ? (
-                ['label' => 'Manage mail', 'url' => ['/email/index']]
-            ): ( 
-                ['label' => '__', 'url' => ['/#']]
             ),
         ],
     ]);
@@ -72,9 +77,9 @@ AppAsset::register($this);
 
 <footer class="footer">
     <div class="container">
-        <p class="pull-left">&copy; My Company <?= date('Y') ?></p>
+        <p class="pull-left">&copy; PJSC YUZNIIGIPROGAZ <?= date('Y') ?></p>
 
-        <p class="pull-right"><?= Yii::powered() ?></p>
+        <p class="pull-right"><?= Html::a('support', 'mailto:sa@ungg.org') ?></p>
     </div>
 </footer>
 
