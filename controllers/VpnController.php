@@ -54,15 +54,23 @@ class VpnController extends Controller
      */
     public function actionView($id = null)
     {
-        $id = \Yii::$app->request->post('id', null);
+        if($id == null) {
+            $id = \Yii::$app->request->post('id', null);
+        }
         
         if(!is_numeric($id)) {
             return $this->goHome();
         }
         
         if(!\Yii::$app->user->isGuest && 
-            \Yii::$app->user->can('viewOwnVPNCredentials', 
-                    ['vpnId' => $id]))
+            (\Yii::$app->user->can('viewOwnVPNCredentials', 
+                    ['vpnId' => $id]) || 
+                (
+                    \Yii::$app->user->can('viewUserCredentials') &&
+                    \Yii::$app->user->can('viewUserPermissions')
+                )
+            )
+        )
         {
             return $this->render('view', [
                 'model' => $this->findModel($id),
