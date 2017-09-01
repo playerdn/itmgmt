@@ -35,6 +35,9 @@ class VpnController extends Controller
      */
     public function actionIndex()
     {
+        if(! \Yii::$app->user->can('observeVpnPermissions')) {
+            throw new \yii\web\ForbiddenHttpException('Access denied');
+        }
         $searchModel = new VpnUsersSearchModel();
         $dataProvider = $searchModel->search(Yii::$app->request->queryParams);
 
@@ -49,11 +52,25 @@ class VpnController extends Controller
      * @param integer $id
      * @return mixed
      */
-    public function actionView($id)
+    public function actionView($id = null)
     {
-        return $this->render('view', [
-            'model' => $this->findModel($id),
-        ]);
+        $id = \Yii::$app->request->post('id', null);
+        
+        if(!is_numeric($id)) {
+            return $this->goHome();
+        }
+        
+        if(!\Yii::$app->user->isGuest && 
+            \Yii::$app->user->can('viewOwnVPNCredentials', 
+                    ['vpnId' => $id]))
+        {
+            return $this->render('view', [
+                'model' => $this->findModel($id),
+            ]);
+        }
+        else {
+            throw new \yii\web\ForbiddenHttpException('Access denied');
+        }
     }
 
     /**

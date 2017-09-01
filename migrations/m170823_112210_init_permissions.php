@@ -63,12 +63,14 @@ class m170823_112210_init_permissions extends Migration
         $auth->addChild($VpnAdmin, $observeVpnPerms);
 
         $user = $auth->createRole('user');
-        $ownerRule = new app\rbac\OwnerRule;
+        $ownerVPNRule = new app\rbac\VpnOwnerRule();
+        $ownerEmailRule = new app\rbac\EmailOwnerRule();
         $userViewOwnVpn = $auth->createPermission('viewOwnVPNCredentials');
         $userViewOwnEmail = $auth->createPermission('viewOwnEmailCredentials');
-        $userViewOwnVpn->ruleName = $ownerRule->name;
-        $userViewOwnEmail->ruleName = $ownerRule->name;
-        $auth->add($ownerRule);
+        $userViewOwnVpn->ruleName = $ownerVPNRule->name;
+        $userViewOwnEmail->ruleName = $ownerEmailRule->name;
+        $auth->add($ownerVPNRule);
+        $auth->add($ownerEmailRule);
         $auth->add($user);
         $auth->add($userViewOwnVpn);
         $auth->add($userViewOwnEmail);

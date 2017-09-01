@@ -13,7 +13,9 @@ use app\models\vpn\VpnUsersRecord;
 class VpnUsersSearchModel extends VpnUsersRecord
 {
     public $username;
-    
+    public $ipAddresses;
+    public $workstations;
+
     /**
      * @inheritdoc
      */
@@ -21,7 +23,8 @@ class VpnUsersSearchModel extends VpnUsersRecord
     {
         return [
             [['ID', 'UID', 'REQUEST_DOC_ID'], 'integer'],
-            [['OVPN_CONF_KIT', 'CERT_PASS', 'START_DATE', 'EXPIRATION', 'LAST_ACCESS', 'username'], 'safe'],
+            [['OVPN_CONF_KIT', 'CERT_PASS', 'START_DATE', 'EXPIRATION', 
+                'LAST_ACCESS', 'username', 'ipAddresses', 'workstations'], 'safe'],
         ];
     }
 
@@ -51,6 +54,18 @@ class VpnUsersSearchModel extends VpnUsersRecord
             'query' => $query,
         ]);
 
+        $query->joinWith('user');
+        $query->joinWith('vpnUserIpLinks');
+        $query->join('LEFT OUTER JOIN', 'vpn_ip_pool', 'vpn_ip_pool.id = vpn_user_ip_links.vpn_ip_id');
+        $query->joinWith('vpnRdpAccesses');
+        $query->join('LEFT OUTER JOIN', 'workstations', 'workstations.id = vpn_rdp_access.WSID');
+        
+        // Add sorting
+        $dataProvider->sort->attributes['username'] = [
+            'asc' => ['users.ADLogin' => SORT_ASC],
+            'desc' => ['users.ADLogin' => SORT_DESC]
+        ];
+
         $this->load($params);
 
         if (!$this->validate()) {
@@ -68,13 +83,18 @@ class VpnUsersSearchModel extends VpnUsersRecord
             'EXPIRATION' => $this->EXPIRATION,
             'LAST_ACCESS' => $this->LAST_ACCESS,
         ]);
-        $query->joinWith('user');
 
         $query->andFilterWhere(['like', 'OVPN_CONF_KIT', $this->OVPN_CONF_KIT])
             ->andFilterWhere(['like', 'CERT_PASS', $this->CERT_PASS]);
         
         if($this->username) {
             $query->andWhere(['like', 'users.ADLogin', $this->username]);
+        }
+        if($this->ipAddresses) {
+            $query->andWhere(['like', 'vpn_ip_pool.ip', $this->ipAddresses]);
+        }
+        if($this->workstations) {
+            $query->andWhere(['like', 'workstations.name', $this->workstations]);
         }
 
         $query->orderBy('users.ADLogin');

@@ -28,8 +28,34 @@ $this->params['breadcrumbs'][] = $this->title;
                 'attribute'=> 'username',
                 'label'=>'User name',
             ],
+            [
+                'attribute' => 'ipAddresses',
+                'label' => 'Assigned IPs',
+                'format' => 'paragraphs',
+                'value' => function($model) {
+                    $ret = '';
+                    foreach ($model->vpnIPs as $link) {
+                        if($ret == '') { $ret .= $link->ip; } 
+                        else { $ret .=  ", " . $link->ip; }
+                   }
+                    return $ret;
+                }
+            ],
             'CERT_PASS',
             'REQUEST_DOC_ID',
+            [
+                'attribute' => 'workstations',
+                'label' => 'Workstations',
+                'format' => 'paragraphs',
+                'value' => function ($model) {
+                    $ret='';
+                    foreach ($model->allowedWorkstations as $ws) {
+                        if($ret=='') { $ret .= $ws->name . '(' . $ws->ip . ')'; }
+                        else { $ret .= "\n\n" . $ws->name . '(' . $ws->ip . ')'; }
+                    }
+                    return $ret;
+                }
+            ],
             // 'START_DATE',
             // 'EXPIRATION',
             // 'LAST_ACCESS',

@@ -3,6 +3,8 @@
 namespace app\models\vpn;
 
 use Yii;
+use app\models\WorkstationsRecord;
+use app\models\UsersRecord;
 
 /**
  * This is the model class for table "vpn_users".
@@ -98,5 +100,27 @@ class VpnUsersRecord extends \yii\db\ActiveRecord
     public function getREQUESTDOC()
     {
         return $this->hasOne(VpnRequestDoc::className(), ['ID' => 'REQUEST_DOC_ID']);
+    }
+    
+    public function getVpnIPs(){
+        return $this->
+                hasMany(VpnIpPoolRecord::className(), ['ID' => 'vpn_ip_id'])->via('vpnUserIpLinks');
+    }
+    public function getAllowedWorkstations() {
+        return $this->hasMany(\app\models\WorkstationsRecord::className(), ['ID' => 'WSID'])->via('vpnRdpAccesses');
+    }
+    
+    public static function GetVpnUserID($username) {
+        $user = UsersRecord::findOne(['ADLogin' => $username]);
+        if(! $user) {
+            return null;
+        }
+        
+        $vuser = VpnUsersRecord::findOne(['UID' => $user->id]);
+        if($vuser) {
+            return $vuser->ID;
+        } else {
+            return null;
+        }
     }
 }
