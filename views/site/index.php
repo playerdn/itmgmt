@@ -11,18 +11,15 @@ $this->title = 'My Yii Application';
 <div class="site-index">
 
     <div class="jumbotron">
-        <h1>Congratulations!</h1>
+        <h1>IT self service</h1>
 
-        <p class="lead">You have successfully created your Yii-powered application.</p>
-
-        <!--<p><a class="btn btn-lg btn-success" href="http://www.yiiframework.com">Get started with Yii</a></p>-->
         <?php
-            if(!\Yii::$app->user->isGuest &&
-            VpnUsersRecord::GetVpnUserID(\Yii::$app->user->identity->username)
-                ) {
+            // Only for logined users...
+            if(!\Yii::$app->user->isGuest) {
+                echo '<p class="lead">You can view or manage next items: </p>';
                 $vuid = VpnUsersRecord::GetVpnUserID(\Yii::$app->user->identity->username);
-                if($vuid) {
-                    echo Html::a("View my VPN &raquo;", 
+                if($vuid) { // if VPN access granted for given user
+                    echo Html::a("My VPN access &raquo;", 
                             Url::to(['vpn/view']),
                             [
                                 'class' => 'btn btn-default',
@@ -36,14 +33,23 @@ $this->title = 'My Yii Application';
                             ]);
                     echo "\n";
                 }
+                
+                if(\Yii::$app->user->can('viewOwnEmailCredentials', 
+                        ['username' => \Yii::$app->user->identity->username])) {
+                    echo Html::a("My Email &raquo;",
+                            Url::to(['email/view']),
+                            [
+                                'class' => 'btn btn-default',
+                                'data' =>  [
+                                    'method' => 'post',
+                                    'params' => [],
+                                ],
+                            ]
+                        );
+                }
             }
 
-            if(!\Yii::$app->user->isGuest && 
-                \Yii::$app->user->can('viewOwnEmailCredentials', ['username' => \Yii::$app->user->identity->username])) {
-                echo '<a class="btn btn-default" href="http://www.yiiframework.com/extensions/">View my Email &raquo;</a>'."\n";
-            }
             echo '</p>';
-
         ?>
     </div>
 </div>

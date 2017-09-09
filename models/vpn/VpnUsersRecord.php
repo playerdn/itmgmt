@@ -97,9 +97,9 @@ class VpnUsersRecord extends \yii\db\ActiveRecord
     /**
      * @return \yii\db\ActiveQuery
      */
-    public function getREQUESTDOC()
+    public function getRequestDoc()
     {
-        return $this->hasOne(VpnRequestDoc::className(), ['ID' => 'REQUEST_DOC_ID']);
+        return $this->hasOne(VpnRequestDocRecord::className(), ['ID' => 'REQUEST_DOC_ID']);
     }
     
     public function getVpnIPs(){
@@ -107,9 +107,19 @@ class VpnUsersRecord extends \yii\db\ActiveRecord
                 hasMany(VpnIpPoolRecord::className(), ['ID' => 'vpn_ip_id'])->via('vpnUserIpLinks');
     }
     public function getAllowedWorkstations() {
-        return $this->hasMany(\app\models\WorkstationsRecord::className(), ['ID' => 'WSID'])->via('vpnRdpAccesses');
+        return $this->hasMany(\app\models\WorkstationsRecord::className(), ['ID' => 'WSID'])
+                ->via('vpnRdpAccesses')
+                ->orderBy(['name' => SORT_ASC]);
     }
     
+    /**
+     * Get VPN user ID by username
+     * 
+     * Function returns ID from `vpn_users` table
+     * 
+     * @param string $username Username (must exists in `users` table)
+     * @return integer
+     */
     public static function GetVpnUserID($username) {
         $user = UsersRecord::findOne(['ADLogin' => $username]);
         if(! $user) {
@@ -122,5 +132,20 @@ class VpnUsersRecord extends \yii\db\ActiveRecord
         } else {
             return null;
         }
+    }
+    /**
+     * 
+     * @return string Formated string for displaying in interface
+     */
+    public function getAllowedWorkstationsAsString() {
+        $ret = '';
+        foreach ($this->allowedWorkstations as $ws) {
+            if ($ret == '') {
+                $ret .= $ws->name . ' (' . $ws->ip . ')';
+            } else {
+                $ret .= "\n\n" . $ws->name . ' (' . $ws->ip . ')';
+            }
+        }
+        return $ret;
     }
 }

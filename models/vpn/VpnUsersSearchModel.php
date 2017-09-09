@@ -52,6 +52,9 @@ class VpnUsersSearchModel extends VpnUsersRecord
 
         $dataProvider = new ActiveDataProvider([
             'query' => $query,
+            'pagination' => [
+                //'pageSize' => 40,
+            ],
         ]);
 
         $query->joinWith('user');
@@ -63,8 +66,14 @@ class VpnUsersSearchModel extends VpnUsersRecord
         // Add sorting
         $dataProvider->sort->attributes['username'] = [
             'asc' => ['users.ADLogin' => SORT_ASC],
-            'desc' => ['users.ADLogin' => SORT_DESC]
+            'desc' => ['users.ADLogin' => SORT_DESC],
         ];
+        $dataProvider->sort->attributes['LAST_ACCESS'] = [
+            'asc' => ['LAST_ACCESS' => SORT_ASC],
+            'desc' => ['LAST_ACCESS' => SORT_DESC]
+        ];
+        // Set default sorting for grid!
+        $dataProvider->sort->defaultOrder['username'] = SORT_ASC;
 
         $this->load($params);
 
@@ -81,8 +90,11 @@ class VpnUsersSearchModel extends VpnUsersRecord
             'REQUEST_DOC_ID' => $this->REQUEST_DOC_ID,
             'START_DATE' => $this->START_DATE,
             'EXPIRATION' => $this->EXPIRATION,
-            'LAST_ACCESS' => $this->LAST_ACCESS,
         ]);
+        
+        if($this->LAST_ACCESS) {
+            $query->andWhere(['like', 'LAST_ACCESS', $this->LAST_ACCESS]);
+        }
 
         $query->andFilterWhere(['like', 'OVPN_CONF_KIT', $this->OVPN_CONF_KIT])
             ->andFilterWhere(['like', 'CERT_PASS', $this->CERT_PASS]);
@@ -96,8 +108,7 @@ class VpnUsersSearchModel extends VpnUsersRecord
         if($this->workstations) {
             $query->andWhere(['like', 'workstations.name', $this->workstations]);
         }
-
-        $query->orderBy('users.ADLogin');
+        $query->distinct();
         return $dataProvider;
     }
 }

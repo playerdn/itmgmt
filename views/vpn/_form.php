@@ -14,7 +14,6 @@ use yii\widgets\ActiveForm;
 
     <?= $form->field($model, 'UID')->textInput() ?>
 
-    <?= $form->field($model, 'OVPN_CONF_KIT')->textInput() ?>
 
     <?= $form->field($model, 'CERT_PASS')->textInput(['maxlength' => true]) ?>
 

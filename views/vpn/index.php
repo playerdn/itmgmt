@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\grid\GridView;
 
 /* @var $this yii\web\View */
@@ -18,15 +19,15 @@ $this->params['breadcrumbs'][] = $this->title;
     <p>
         <?= Html::a('Create Vpn Users Record', ['create'], ['class' => 'btn btn-success']) ?>
     </p>
-    <?= GridView::widget([
+    <?=
+    GridView::widget([
         'dataProvider' => $dataProvider,
         'filterModel' => $searchModel,
         'columns' => [
             ['class' => 'yii\grid\SerialColumn'],
-            
             [
-                'attribute'=> 'username',
-                'label'=>'User name',
+                'attribute' => 'username',
+                'label' => 'User name',
             ],
             [
                 'attribute' => 'ipAddresses',
@@ -35,32 +36,81 @@ $this->params['breadcrumbs'][] = $this->title;
                 'value' => function($model) {
                     $ret = '';
                     foreach ($model->vpnIPs as $link) {
-                        if($ret == '') { $ret .= $link->ip; } 
-                        else { $ret .=  ", " . $link->ip; }
-                   }
-                    return $ret;
-                }
-            ],
-            'CERT_PASS',
-            'REQUEST_DOC_ID',
-            [
-                'attribute' => 'workstations',
-                'label' => 'Workstations',
-                'format' => 'paragraphs',
-                'value' => function ($model) {
-                    $ret='';
-                    foreach ($model->allowedWorkstations as $ws) {
-                        if($ret=='') { $ret .= $ws->name . '(' . $ws->ip . ')'; }
-                        else { $ret .= "\n\n" . $ws->name . '(' . $ws->ip . ')'; }
+                        if ($ret == '') {
+                            $ret .= $link->ip;
+                        } else {
+                            $ret .= ", " . $link->ip;
+                        }
                     }
                     return $ret;
                 }
             ],
+            [
+                'label' => 'Connection kit',
+                'format' => 'raw',
+                'value' => function ($model) {
+                    if($model->OVPN_CONF_KIT) {
+                        return Html::button('Download', [
+                                'class' => 'btn btn-primary',
+                                'style' => 'margin-left: 1px;',
+                                'onclick' => "location.href='" .
+                                    Url::to(['vpn/credentials',
+                                        'mode' => 'cert',
+                                        'VUID' => $model->ID]
+                                    ) .
+                                    "'",
+                        ]);
+                    } else { return ''; }
+                }
+            ],
+            [
+                'label' => 'Password',
+                'format' => 'raw',
+                'value' => function($model) {
+                    if($model->CERT_PASS) {
+                        $ret = "<div class=\"replace$model->ID\" align=\"center\">";
+                        $ret .= Html::button('Show', [
+                                    'class' => 'btn btn-primary',
+                                    'style' => 'margin-left: 1px;',
+                                    'onclick' => 'showPass(' . $model->ID . ')',
+                        ]);
+                        $ret .= "</div>";
+                        return $ret;
+                    } else { return ''; }
+                },
+            ],
+            [
+                'label' => 'Request',
+                'format' => 'raw',
+                'value' => function($model) {
+                    $rd = $model->requestDoc;
+                    if($rd) {
+                        return Html::a($model->requestDoc->DESCRIPTION, 
+                                Url::to(['vpn/request', 
+                                    'VUID'=> $model->ID]));
+                    } else {
+                        return '';
+                    }
+                },
+            ],
+            [
+                'attribute' => 'workstations',
+                'label' => 'Workstations',
+                'format' => 'paragraphs',
+                'value' => function($model){return $model->AllowedWorkstationsAsString;}
+            ],
             // 'START_DATE',
             // 'EXPIRATION',
-            // 'LAST_ACCESS',
-
-            ['class' => 'yii\grid\ActionColumn'],
+            [
+                'attribute' => 'LAST_ACCESS',
+                'label' => 'Last access',
+                'format'=> 'paragraphs'
+            ],
+            [
+                'class' => 'yii\grid\ActionColumn',
+                'template' => '{view} {update}'
+            ],
         ],
-    ]); ?>
+    ]);
+    ?>
 </div>
