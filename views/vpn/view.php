@@ -8,8 +8,14 @@ use yii\widgets\DetailView;
 /* @var $model app\models\vpn\VpnUsersRecord */
 
 $this->title = $model->user->ADLogin;
-$this->params['breadcrumbs'][] = ['label' => 'Vpn Users', 'url' => ['index']];
-$this->params['breadcrumbs'][] = $model->user->ADLogin;
+
+if(\Yii::$app->user->can('observeVpnPermissions')) {
+    $this->params['breadcrumbs'][] = ['label' => 'Vpn Users', 'url' => ['index']];
+    $this->params['breadcrumbs'][] = $model->user->ADLogin;
+} else {
+    $this->params['breadcrumbs'][] = 'VPN credentials';
+}
+
 ?>
 <div class="vpn-users-record-view">
 
@@ -18,7 +24,7 @@ $this->params['breadcrumbs'][] = $model->user->ADLogin;
     <p>
         <?php
             if(\Yii::$app->user->can('updatePermissions')) {
-                echo Html::a('Update', ['update', 'id' => $model->ID], 
+                echo Html::a('Update permissions', ['update', 'id' => $model->ID], 
                         ['class' => 'btn btn-primary']);
             }
         ?>

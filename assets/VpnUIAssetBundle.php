@@ -8,6 +8,10 @@ class VpnUIAssetBundle extends AssetBundle {
     public $js = [
         'js/main.js'
     ];
+    public $css = [
+        'css/vpn.css',
+    ];
+
     public $depends = [
         'yii\web\JqueryAsset',
     ];

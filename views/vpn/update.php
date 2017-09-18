@@ -1,6 +1,7 @@
 <?php
 
 use yii\helpers\Html;
+use yii\helpers\Url;
 use yii\widgets\ActiveForm;
 use yii\grid\GridView;
 use yii\data\ActiveDataProvider;
@@ -27,8 +28,23 @@ $this->params['breadcrumbs'][] = 'Update';
         <table>
             <tr>
                 <td>
-                    <input id = "searchPermission" class="input" type="text" placeholder="type here to search">
-                    <button type="button" class="btn-grey">Select</button>
+                    <?= Html::beginForm('permissions', 'post',['autocomplete'=>'off']); ?>
+                    <?= Html::input('hidden', 'vuid', $model->ID, ['id' => 'vuid']) ?>
+                    <?= Html::input('hidden', 'mode', 'grant',['id' => 'mode']) ?>
+                    <div class="input-group">
+                        <?= Html::input('text', 'ws','', [
+                          'id' => 'searchPermission',
+                          'class'=> 'form-control',
+                          'placeholder' => 'type here to search'
+                        ]) ?>
+                        <div class="input-group-btn">
+                            <?= Html::button('<i class="glyphicon glyphicon-ok"></i>', [
+                              'type' => 'submit',
+                              'class' => 'btn btn-primary'
+                            ]) ?>
+                        </div>
+                    </div>
+                    <?= Html::endForm()?>
                 </td>
             </tr>
         </table>
@@ -48,12 +64,31 @@ $this->params['breadcrumbs'][] = 'Update';
             'columns' => [
                 [
                     'attribute' => 'name',
-                    'label' =>  'PC name'
-                ]
+                    'label' =>  'PC name',
+                ],
+                [
+                  'class' => 'yii\grid\ActionColumn',
+                  'buttons' => [
+                        'delete'=> function($url, $row_model, $key) use($model) {
+                            return Html::a('<span class="glyphicon glyphicon-trash"></span>', 
+                                ['vpn/permissions'],
+                                [
+                                  'data'=>[
+                                    'method' => 'post',
+                                    'params' => [
+                                          'mode' => 'deny',
+                                          'vuid' => $model->ID,
+                                          'ws' => $row_model->name
+                                    ]
+                                  ]
+                                ]
+                                );
+                        }
+                  ],
+                  'template' => '{delete}',
+                ],
             ]
         ]);
-        
     ?>        
    </div>
-
 </div>

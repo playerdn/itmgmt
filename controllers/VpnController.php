@@ -12,6 +12,7 @@ use yii\filters\VerbFilter;
 use app\models\LogRecord;
 use yii\web\ForbiddenHttpException;
 use app\models\WorkstationsRecord;
+use app\models\vpn\VpnRdpAccessRecord;
 
 /**
  * VpnController implements the CRUD actions for VpnUsersRecord model.
@@ -111,6 +112,10 @@ class VpnController extends Controller
      */
     public function actionUpdate($id)
     {
+        if(! \Yii::$app->user->can('updatePermissions')) {
+            throw new ForbiddenHttpException('You have no permission for view this.');
+        }
+        
         $model = $this->findModel($id);
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {
@@ -235,7 +240,7 @@ class VpnController extends Controller
                 $fn . '.pdf', ['inline' => true]);
     }
     /**
-     * Search for workstation's names
+     * AJAX Search for workstation's names
      * @param string $wsname
      * @return string
      * @throws ForbiddenHttpException
@@ -254,15 +259,76 @@ class VpnController extends Controller
             if(!isset($wsname)) {return ''; }
             $wsz = WorkstationsRecord::find()->
                     filterWhere(['like', 'name', $wsname])->
-                    orderBy('name')->all();
+                    orderBy('name')->limit(10)->all();
             
+            $ret = array();
             foreach($wsz as $ws) {
                 $ret[] = $ws->name;
             }
           
-            // !!! Remove double quotes!!!
             \Yii::$app->response->format = \yii\web\Response::FORMAT_JSON;
             return $ret;
+        }
+    }
+    /**
+     * Grants or denies access for given user to given workstation
+     * 
+     * @return type
+     * @throws ForbiddenHttpException
+     * @throws \yii\web\BadRequestHttpException
+     */
+    public function actionPermissions() {
+        // If we need to use post action we need bind params manually and d
+        // don't use action with params
+        
+        if(! \Yii::$app->user->can('updatePermissions')) {
+            throw new ForbiddenHttpException('You have no permission for view this.');
+        }
+
+        $vuid = \Yii::$app->request->post('vuid');
+        $mode = \Yii::$app->request->post('mode');
+        $ws = \Yii::$app->request->post('ws');
+
+        if(! isset($vuid) or ! isset($mode) or ! isset($ws)) {
+            throw new \yii\web\BadRequestHttpException('Missing required parameter');
+        }
+        
+        if(($user = VpnUsersRecord::findOne(['ID' => $vuid]))!=null) {
+            if($mode == 'grant') {
+                $this->grantRdpAccess($user, $ws);
+            } else if ($mode == 'deny') {
+                $this->denyRdpAccess($user, $ws);
+            }
+        }
+
+        return $this->redirect(\yii\helpers\Url::to(['update', 'id'=> $vuid]));
+    }
+    /**
+     * Grants RDP access to workstation
+     * @param VpnUsersRecord $vpn_user Vpn user model
+     * @param string $ws Name of workstation
+     * @return type
+     */
+    private function grantRdpAccess($vpn_user, $ws){
+        if(($oWs = WorkstationsRecord::findOne(['name' => $ws])) != null) {
+            foreach ($vpn_user->allowedWorkstations as $ws) {
+                if($ws->id == $oWs->id) {return;}
+            }
+            $vpnAccessRec = new \app\models\vpn\VpnRdpAccessRecord(['WSID'=>$oWs->id, 'VPN_UID' => $vpn_user->ID]);
+            $vpnAccessRec->save();
+        }
+    }
+    /**
+     * Denies RDP access for user
+     * @param VpnUsersRecord $vpn_user
+     * @param string $ws
+     */
+    private function denyRdpAccess($vpn_user, $ws) {
+        if(($oWs = WorkstationsRecord::findOne(['name' => $ws])) != null) {
+            if(($oVRA = VpnRdpAccessRecord::findOne(['WSID'=>$oWs->id, 
+                        'VPN_UID' => $vpn_user->ID])) != null) {
+                $oVRA->delete();
+            }
         }
     }
 }

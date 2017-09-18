@@ -3,6 +3,7 @@
 namespace app\models\vpn;
 
 use Yii;
+use app\models\WorkstationsRecord;
 
 /**
  * This is the model class for table "vpn_rdp_access".
@@ -32,8 +33,8 @@ class VpnRdpAccessRecord extends \yii\db\ActiveRecord
         return [
             [['WSID', 'VPN_UID'], 'required'],
             [['WSID', 'VPN_UID'], 'integer'],
-            [['WSID'], 'exist', 'skipOnError' => true, 'targetClass' => Workstations::className(), 'targetAttribute' => ['WSID' => 'id']],
-            [['VPN_UID'], 'exist', 'skipOnError' => true, 'targetClass' => VpnUsers::className(), 'targetAttribute' => ['VPN_UID' => 'ID']],
+            [['WSID'], 'exist', 'skipOnError' => true, 'targetClass' => WorkstationsRecord::className(), 'targetAttribute' => ['WSID' => 'id']],
+            [['VPN_UID'], 'exist', 'skipOnError' => true, 'targetClass' => VpnUsersRecord::className(), 'targetAttribute' => ['VPN_UID' => 'ID']],
         ];
     }
 
