@@ -6,7 +6,6 @@ use yii\widgets\ActiveForm;
 use yii\grid\GridView;
 use yii\data\ActiveDataProvider;
 
-
 /* @var $this yii\web\View */
 /* @var $model app\models\vpn\VpnUsersRecord */
 
@@ -35,7 +34,7 @@ $this->params['breadcrumbs'][] = 'Update';
                         <?= Html::input('text', 'ws','', [
                           'id' => 'searchPermission',
                           'class'=> 'form-control',
-                          'placeholder' => 'type here to search'
+                          'placeholder' => 'workstation name'
                         ]) ?>
                         <div class="input-group-btn">
                             <?= Html::button('<i class="glyphicon glyphicon-ok"></i>', [

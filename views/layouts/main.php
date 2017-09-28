@@ -41,7 +41,7 @@ VpnUIAssetBundle::register($this);
         'options' => ['class' => 'navbar-nav navbar-right'],
         'items' => [
             Yii::$app->user->can('observeMailboxes') ? (
-                ['label' => 'E-mail', 'url' => ['/email/']]
+                ['label' => 'E-mail', 'url' => ['/mail/']]
             ): (''),
             Yii::$app->user->can('observeInetPermissions') ? (
                 ['label' => 'Internet', 'url' => ['/inet/']]

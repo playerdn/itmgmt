@@ -1,7 +1,8 @@
 <?php
 
 $params = require(__DIR__ . '/params.php');
-$db = require(__DIR__ . '/db_ungg.php');
+$dbIt = require(__DIR__ . '/db_ungg_it.php');
+$dbMail = require(__DIR__ . '/db_ungg_user_passwd.php');
 $ad = require(__DIR__ . '/ldap_ungg.php');
 
 $config = [
@@ -39,7 +40,8 @@ $config = [
                 ],
             ],
         ],
-        'db' => $db,
+        'db' => $dbIt,
+        'dbMail' => $dbMail,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

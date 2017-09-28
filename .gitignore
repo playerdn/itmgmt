@@ -30,8 +30,9 @@ tests/_output/*
 tests/_support/_generated
 
 # UNGG Credentials
-/config/db_ungg.php
+/config/db_ungg_it.php
 /config/ldap_ungg.php
+/config/db_ungg_user_passwd.php
 
 # Dynamically created assets
 /web/assets/

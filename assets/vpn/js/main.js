@@ -1,5 +1,5 @@
 function showPass(vuid) {
-    $.get("credentials", {VUID: vuid, mode: "pass"}, function(retData) {
+    $.get("vpn/credentials", {VUID: vuid, mode: "pass"}, function(retData) {
         $('.replace'+vuid).html(retData);
     });
 }
