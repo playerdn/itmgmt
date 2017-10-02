@@ -8,6 +8,8 @@ use app\models\mail\MailSearchModel;
 use yii\web\Controller;
 use yii\web\NotFoundHttpException;
 use yii\filters\VerbFilter;
+use app\models\EmplPersonsRecord;
+use app\helpers\EmailHelpers;
 
 /**
  * MailController implements the CRUD actions for MailRecord model.
@@ -61,8 +63,26 @@ class MailController extends Controller
      * If creation is successful, the browser will be redirected to the 'view' page.
      * @return mixed
      */
-    public function actionCreate()
+    public function actionCreate($selectedEmpl = null)
     {
+        $selectedEmpl = Yii::$app->request->post('selectedEmpl', null);
+        
+        if($selectedEmpl != null) {
+            if( ($empl = EmplPersonsRecord::findOne(['ID' => $selectedEmpl])) != null) {
+                $newMailRecord = new MailRecord();
+                $newMailRecord->name_f = $empl->Фамилия;
+                $newMailRecord->name_o = $empl->Отчество;
+                $newMailRecord->name_i = $empl->Имя;
+                
+                // Prepare other fields as well
+                $newMailRecord->login = 
+                    EmailHelpers::SuggestLogin($newMailRecord->name_f, 
+                        $newMailRecord->name_i, $newMailRecord->name_o);
+                
+                return $this->render('create4empl', ['model' => $newMailRecord]);
+            }
+        } 
+
         $model = new MailRecord();
 
         if ($model->load(Yii::$app->request->post()) && $model->save()) {

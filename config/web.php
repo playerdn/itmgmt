@@ -3,6 +3,7 @@
 $params = require(__DIR__ . '/params.php');
 $dbIt = require(__DIR__ . '/db_ungg_it.php');
 $dbMail = require(__DIR__ . '/db_ungg_user_passwd.php');
+$dbA2t = require(__DIR__ . '/db_ungg_archiv2t.php');
 $ad = require(__DIR__ . '/ldap_ungg.php');
 
 $config = [
@@ -42,6 +43,7 @@ $config = [
         ],
         'db' => $dbIt,
         'dbMail' => $dbMail,
+        'dba2t' => $dbA2t,
         'urlManager' => [
             'enablePrettyUrl' => true,
             'showScriptName' => false,

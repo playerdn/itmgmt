@@ -33,6 +33,7 @@ tests/_support/_generated
 /config/db_ungg_it.php
 /config/ldap_ungg.php
 /config/db_ungg_user_passwd.php
+/config/db_ungg_archiv2t.php
 
 # Dynamically created assets
 /web/assets/

@@ -138,4 +138,7 @@ class MailRecord extends \yii\db\ActiveRecord
             }
         }
     }
+    public function getfullName(){
+        return $this->name_f . " " . $this->name_i . " " . $this->name_o;
+    }
 }
