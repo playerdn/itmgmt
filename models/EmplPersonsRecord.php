@@ -90,10 +90,10 @@ class EmplPersonsRecord extends \yii\db\ActiveRecord
         foreach($emplz as $empl) {$emplzGuidz[] = strtolower($empl->ID);}
         foreach($emplzEmail as $empl) {$emailzGuidz[] = strtolower($empl->guid);}
         
-        $haveEmailz = array_intersect($emailzGuidz, $emplzGuidz);
+        $haveEmailz = array_unique(array_intersect($emailzGuidz, $emplzGuidz));
         
         foreach($emplz as $empl) {
-            if(!array_search(strtolower($empl->ID), $haveEmailz)) {
+            if(array_search(strtolower($empl->ID), $haveEmailz) === FALSE) {
                 $ret[]=$empl;
             }
         }

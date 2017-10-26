@@ -17,14 +17,22 @@ $this->params['breadcrumbs'][] = EmailHelpers::CreateEmailDescription($model);
 
     <p>
         <?= Html::a('Update', ['update', 'id' => $model->id], ['class' => 'btn btn-primary']) ?>
-        <?= Html::a('Delete', ['delete', 'id' => $model->id], [
-            'class' => 'btn btn-danger',
-            'data' => [
-                'confirm' => 'Are you sure you want to delete this item?',
-                'method' => 'post',
-            ],
-        ]) ?>
-    </p>
+        <?php
+            $deps = $model->GetDependings();
+            if($model->isAlias && count($deps) == 0) {
+                echo Html::a('Delete alias', ['delete', 'id' => $model->id], [
+                    'class' => 'btn btn-danger',
+                    'data' => [
+                        'confirm' => 'Are you sure you want to delete this item?',
+                        'method' => 'post',
+                    ],
+                ]);
+            } else {
+                echo Html::a('Delete', 
+                            ['delete-confirmation', 'id' => $model->id], 
+                            ['class' => 'btn btn-warning']);
+            }
+        ?>
 
     <?= DetailView::widget([
         'model' => $model,

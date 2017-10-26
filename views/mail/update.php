@@ -24,17 +24,19 @@ $this->params['breadcrumbs'][] = 'Update';
 
     <?php $form = ActiveForm::begin(); ?>
 
-    <?= $form->field($model, 'name_f')->textInput(['maxlength' => true])->label('Last name') ?>
+    <?= $form->field($model, 'name_f')->textInput(['maxlength' => true])->label('Last name')?>
 
     <?= $form->field($model, 'name_i')->textInput(['maxlength' => true])->label('First name') ?>
 
     <?= $form->field($model, 'name_o')->textInput(['maxlength' => true])->label('Middle name') ?>
 
-    <?= $form->field($model, 'login')->textInput(['maxlength' => true]) ?>
+    <?= $model->scenario == 'userEmail' ?
+        $form->field($model, 'login')->textInput(['maxlength' => true]):''  ?>
 
     <?= $form->field($model, 'E_mail')->input('email') ?>
 
-    <?= $form->field($model, 'passwd')->textInput(['maxlength' => true]) ?>
+    <?= $model->scenario == 'userEmail' ?
+        $form->field($model, 'passwd')->textInput(['maxlength' => true]):'' ?>
 
     <?= $form->field($model, 'spam_f')->checkbox(['label' => 'Spam filter']) ?>
 

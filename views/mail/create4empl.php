@@ -2,6 +2,7 @@
 
 use yii\helpers\Html;
 use yii\helpers\ArrayHelper;
+use app\helpers\EmailHelpers;
 use app\models\EmplPersonsRecord;
 use yii\bootstrap\ActiveForm;
 use yii\base\DynamicModel;
@@ -22,18 +23,18 @@ $this->params['breadcrumbs'][] = 'Create (for "' . $model->fullName . '")';
         <tr>
             <td>
                 <?= $form->field($model, 'name_f')->
-                textInput(['disabled'=>'disabled'])->label('Last name') ?>
+                textInput(['readonly'=>'readonly'])->label('Last name') ?>
             </td>
             <td>
                 <div  style="margin-left: 50px;">
                     <?= $form->field($model, 'name_i')->
-                    textInput(['disabled'=>'disabled'])->label('First name') ?>
+                    textInput(['readonly'=>'readonly'])->label('First name') ?>
                 </div>
             </td>
             <td>
                 <div  style="margin-left: 50px;">
                     <?= $form->field($model, 'name_o')->
-                    textInput(['disabled'=>'disabled'])->label('Midle name') ?>
+                    textInput(['readonly'=>'readonly'])->label('Midle name') ?>
                 </div>
             </td>
         </tr>
@@ -41,7 +42,29 @@ $this->params['breadcrumbs'][] = 'Create (for "' . $model->fullName . '")';
             <td>
                 <?= $form->field($model, 'login')->textInput() ?>
             </td>
+            <td>
+                <?php
+                    $domains = EmailHelpers::GetOurDomains();
+                    $new_dom = [];
+                    foreach ($domains as $d ) {
+                        $new_dom[$d] = $d;
+                    }
+                ?>
+                <?= $form->field($model, 'domain')->dropDownList($new_dom) ?>
+            </td>
         </tr>
+        <tr><td>
+            <?= $form->field($model, 'guid')->hiddenInput(['value' => $model->guid])->label('') ?>
+            <?= $form->field($model, 'passwd')->textInput() ?>
+        </td></tr>
+        <tr>
+            <td><?= $form->field($model, 'spam_f')->checkbox(['checked'=> true])->label('Spam filter') ?></td>
+            <td><?= $form->field($model, 'greylist')->checkbox()->label('Greylist') ?></td>
+        </tr>
+        <tr><td><?= $form->field($model, 'visible_mail')->checkbox()->label('Visible') ?></td></tr>
     </table>
+    
+    <?= Html::submitButton('Create', ['class' => 'btn btn-primary', 
+                'align' => 'right']) ?>
     <?php ActiveForm::end(); ?>
 </div>

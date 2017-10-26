@@ -5,6 +5,7 @@ use yii\helpers\ArrayHelper;
 use app\models\EmplPersonsRecord;
 use yii\bootstrap\ActiveForm;
 use yii\base\DynamicModel;
+use yii\helpers\Url;
 
 /* @var $this yii\web\View */
 /* @var $model app\models\mail\MailRecord */
@@ -43,7 +44,9 @@ $dropDownItems = ArrayHelper::map($o, 'ID', 'fullName');
             <td style="vertical-align: top;">
                 <div style="margin-left: 50px;">
                 <h2>New service mailbox</h2>
-                    <?= Html::button('Create service mailbox', ['class' => 'btn btn-primary']) ?>
+                    <?= Html::a('Create Service Mailbox', 
+                        [Url::toRoute('mail/create-service-email')], 
+                        ['class' => 'btn btn-primary']) ?>
                 </div>
             </td>
         </tr>

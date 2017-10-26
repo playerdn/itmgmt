@@ -5,9 +5,6 @@ namespace app\helpers;
 use app\models\mail\MailRecord;
 
 class EmailHelpers {
-    private static $ourDomains = ['ungg.org', 'ungg.net', 'yuzh-gaz.donetsk.ua', 
-                        'ungg.donetsk.ua', 'ungg2.donetsk.ua'];
-    
     /**
      * Generate description for e-mail by model fields
      * 
@@ -48,7 +45,7 @@ class EmailHelpers {
     }
     
     /**
-     * Check is email located on ours servers
+     * Check is email located on ours servers (check domain part of emails)
      * 
      * @param string $email
      * @return boolean
@@ -57,9 +54,28 @@ class EmailHelpers {
         $emailLow = strtolower($email);
         $dom = substr($emailLow, strrpos($emailLow, '@')+1);
         
-        return in_array($dom, self::$ourDomains);
+        return self::IsOurDomain($dom);
     }
     
+    /**
+     * Check domain our or not
+     * 
+     * @param string $dom
+     * @return boolean true if ours
+     */
+    public static function IsOurDomain($dom) {
+        return in_array(strtolower($dom), EnterpriseDomains::getDomains());
+    }
+    
+    /**
+     * Generates email login based on user name. 
+     * Checks that login not match with user part (before @) existing emails
+     * 
+     * @param string $lname Last name
+     * @param string $fname First name
+     * @param string $mname Middle name
+     * @return string
+     */
     public static function SuggestLogin($lname, $fname='', $mname='') {
         $lname = trim(preg_replace('/[^a-zA-Zа-яА-Я0-9]/ui', '',$lname));
         $fname = trim(preg_replace('/[^a-zA-Zа-яА-Я0-9]/ui', '',$fname));
@@ -67,18 +83,43 @@ class EmailHelpers {
         
         $lnameEn = strtolower(self::get_in_translate_to_en($lname));
         
-        $o = MailRecord::find()->where(['=', 'login', $lnameEn])->orWhere(['like','E_mail', $lnameEn])->one();
-        if($o == null) {return $lnameEn; }
+        // Try pure surname
+        if(self::IsUsernameFree($lnameEn)) { return $lnameEn; }
         
-        if(strlen($fname)>0 && strlen($mname)>0) {
+        if(strlen($fname)>0) {
             $fnameEn = mb_substr(strtolower(self::get_in_translate_to_en($fname)),0,1);
-            $mnameEn = mb_substr(strtolower(self::get_in_translate_to_en($mname)),0,1);
-            $login = $lnameEn . "_$fnameEn$mnameEn";
-            $o = MailRecord::find()->where(['=', 'login', $login])->orWhere(['like','E_mail', $login])->one();
-            if($o == null) {return $login; }
         }
+        
+        if(strlen($mname)>0) {
+            $mnameEn = mb_substr(strtolower(self::get_in_translate_to_en($mname)),0,1);
+        }
+        
+        // Try format surname with initials
+        if(strlen($fname)>0 && strlen($mname)>0) {
+            $login = $lnameEn . "_$fnameEn$mnameEn";
+            if(self::IsUsernameFree($login)) { return $login; }
+        } else if (strlen($fname) > 0) {
+            // Try surname and first letter in name
+            $login = $lnameEn . "_$fnameEn";
+            if(self::IsUsernameFree($login)) { return $login; }
+            else {
+                // Surname and full name
+                $fnameEn = strtolower(self::get_in_translate_to_en($fname));
+                $login = $lnameEn . "_$fnameEn";
+                if(self::IsUsernameFree($login)) { return $login; }
+            }
+        }
+        
+        return '';
     }
     
+    /**
+     * Transliterate russian names to latin
+     * 
+     * @param string $string string for transliteration
+     * @param bool $gost Use GOST rules
+     * @return string transliterated string
+     */
     public static function get_in_translate_to_en($string, $gost=false)
     {
 	if($gost)
@@ -109,5 +150,44 @@ class EmailHelpers {
 	}
         
 	return iconv("UTF-8","UTF-8//IGNORE",strtr($string,$replace));
+    }
+    
+    /**
+     * Check given username is available for use
+     * 
+     * @param string $uname
+     * @return boolean true if free
+     */
+    public static function IsUsernameFree($uname) {
+        $o = MailRecord::find()->where(['=', 'login', $uname])->orWhere(['like','E_mail', $uname . '@'])->one();
+        if($o == null) {return true; }
+        else { return false;}
+    }
+    public static function GetOurDomains() {
+        return EnterpriseDomains::getDomains();
+    }
+    public static function generatePassword($number) {
+        $arr = array('a','b','c','d','e','f',
+                     'g','h','i','j','k','l',
+                    'm','n','o','p','r','s',
+                    't','u','v','x','y','z',
+                    'A','B','C','D','E','F',
+                    'G','H','I','J','K','L',
+                    'M','N','O','P','R','S',
+                    'T','U','V','X','Y','Z',
+                    '1','2','3','4','5','6',
+                    '7','8','9','0');
+
+        // Генерируем пароль
+        $pass = "";
+
+        for($i = 0; $i < $number; $i++)
+        {
+            // Вычисляем случайный индекс массива
+            $index = rand(0, count($arr) - 1);
+            $pass .= $arr[$index];
+        }
+
+        return $pass;
     }
 }
